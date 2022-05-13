@@ -23,7 +23,7 @@ node app.js
 - 根目录
   - [APIDOC.md](./APIDOC.md)：API接口文档。
   - [app.js](./app.js)：项目入口。
-- [database](./database)
+- [database](./database)：数据库模块，处理数据层的交互
 - [router](./router)：路由模块，只存放客户端的请求与处理函数之间的映射关系
-- [routerhandler](./router_handler)：路由处理模块，存放实际的处理行为
+- [router_handler](./router_handler)：路由处理模块，存放实际的处理行为
 - [store](./store)：仓库模块，存放全局共享的变量或者方法
