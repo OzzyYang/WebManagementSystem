@@ -20,13 +20,14 @@ app.use(expressJwt({ secret: config.jwtSecretKey, algorithms: ["HS256"] }).unles
 
 //全局的响应函数的中间件
 app.use((req, res, next) => {
-    res.cc = (err, status = 1) => {
-        const errStr = err instanceof Error ? err.message : err;
-        console.log(status === 0 ? 'success' : errStr);
+    res.cc = (msg, status = 1, data = undefined) => {
+        //如果msg是一种错误，则取值为错误信息
+        msg = msg instanceof Error ? msg.message : msg;
+        console.log(status === 0 ? 'success' : msg);
         res.send({
             status,
-            message: errStr,
-            token: res.tokenStr ? res.tokenStr : undefined
+            message: msg,
+            data: data
         })
     }
     next();
@@ -36,9 +37,13 @@ app.use((req, res, next) => {
 const userRouter = require('./router/user.js');
 app.use('/user', userRouter);
 
+//导入个人中心路由模块
+const myRouter = require('./router/my.js');
+app.use('/my', myRouter);
+
 //捕获Token认证后的错误
 app.use((err, req, res, next) => {
-    console.log(err);
+    console.log(err.message);
     // token解析失败导致的错误
     if (err.name === 'UnauthorizedError') {
         //TODO 无效的cc function
