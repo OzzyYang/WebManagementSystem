@@ -115,7 +115,7 @@ exports.userLogin = (req, res) => {
             return res.cc('登陆失败')
         }
 
-        //清洗用户信息
+        //清洗用户信息并生成Token
         const userInfo = { ...results[0], password: '', user_pic: '' };
         res.tokenStr = jwt.sign(userInfo, config.jwtSecretKey, { expiresIn: config.tokenDuration });
         return res.cc('登陆成功', 0)

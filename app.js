@@ -38,6 +38,7 @@ app.use('/user', userRouter);
 
 //捕获Token认证后的错误
 app.use((err, req, res, next) => {
+    console.log(err);
     // token解析失败导致的错误
     if (err.name === 'UnauthorizedError') {
         //TODO 无效的cc function
