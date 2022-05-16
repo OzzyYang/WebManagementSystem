@@ -1,3 +1,4 @@
+# WebManagementSystem
 使用Node.js开发的后台管理系统，包含用户模块，用户数据使用MySQL存储。
 
 # 依赖环境
@@ -34,3 +35,4 @@ node app.js
   - [user_handler.js](./router_handler/user_handler.js)：用户路由处理模块
   - [my_handler.js](./router_handler/my_handler.js)：个人中心路由处理模块
 - [store](./store)：仓库模块，存放全局共享的变量或者方法
+
