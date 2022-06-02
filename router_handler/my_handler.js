@@ -1,4 +1,6 @@
-const database = require("../database/index");
+const path = require("path");
+
+const database = require(path.join(__dirname, "..", "/database/index"));
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcryptjs");
 

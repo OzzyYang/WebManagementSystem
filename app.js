@@ -1,10 +1,15 @@
+const path = require("path");
+
 const express = require("express");
-const app = express();
-const config = require("./store/config");
 const dayjs = require("dayjs");
+const cors = require("cors");
+//导入全局配置
+const config = require(path.join(__dirname, "/store/config"));
+
+//启动Express服务
+const app = express();
 
 //配置跨域访问的全局中间件
-const cors = require("cors");
 app.use(cors());
 
 //配置解析表单数据的全局中间件
@@ -17,7 +22,6 @@ app.listen(config.port, () => {
 
 //配置解析Token的中间件
 const { expressjwt: expressJwt } = require("express-jwt");
-
 app.use(
   expressJwt({ secret: config.jwtSecretKey, algorithms: ["HS256"] }).unless({
     path: [/^\/user\//]
@@ -51,11 +55,11 @@ app.use((req, res, next) => {
 });
 
 //导入用户路由模块
-const userRouter = require("./router/user.js");
+const userRouter = require(path.join(__dirname, "/router/user.js"));
 app.use("/user", userRouter);
 
 //导入个人中心路由模块
-const myRouter = require("./router/my.js");
+const myRouter = require(path.join(__dirname, "/router/my.js"));
 app.use("/my", myRouter);
 
 //捕获Token认证后的错误

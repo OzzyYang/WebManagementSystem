@@ -1,8 +1,10 @@
-const database = require("../database/index");
+const path = require("path");
+
+const database = require(path.join(__dirname, "..", "/database/index"));
 //用于加密用户密码的中间件
 const bcrypt = require("bcryptjs");
 //引入全局共享的变量和方法
-const config = require("../store/config");
+const config = require(path.join(__dirname, "..", "/store/config"));
 //配置Token的中间件
 const jwt = require("jsonwebtoken");
 //用于验证用户信息的中间件
