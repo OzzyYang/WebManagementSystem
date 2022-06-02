@@ -3,6 +3,7 @@ const path = require("path");
 const express = require("express");
 const dayjs = require("dayjs");
 const cors = require("cors");
+const { expressjwt: expressJwt } = require("express-jwt");
 //导入全局配置
 const config = require(path.join(__dirname, "/store/config"));
 
@@ -21,7 +22,6 @@ app.listen(config.port, () => {
 });
 
 //配置解析Token的中间件
-const { expressjwt: expressJwt } = require("express-jwt");
 app.use(
   expressJwt({ secret: config.jwtSecretKey, algorithms: ["HS256"] }).unless({
     path: [/^\/user\//]
@@ -69,13 +69,13 @@ app.use((err, req, res, next) => {
   if (err.name === "UnauthorizedError") {
     //TODO 无效的cc function
     return res.send({
-      status: 1,
+      status: 0,
       msg: "无效的Token"
     });
   }
   //其它原因导致的错误
   return res.send({
-    status: 1,
+    status: 0,
     msg: "Token认证失败"
   });
 });
