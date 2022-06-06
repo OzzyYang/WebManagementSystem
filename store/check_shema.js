@@ -23,28 +23,6 @@ exports.checkUserInfo = checkSchema({
       errorMessage: "密码不能少于6位或超过12位",
       options: { min: 6, max: 16 }
     }
-  },
-  email: {
-    //可选的
-    optional: {},
-    isEmail: {
-      errorMessage: "邮箱格式错误"
-    }
-  },
-  nickname: {
-    optional: {},
-    isString: { errorMessage: "昵称必须为字符串格式" },
-    isLength: {
-      errorMessage: "用户名不得少于1位或者超过10位字符",
-      options: { min: 1, max: 10 }
-    }
-  },
-  user_pic: {
-    optional: {},
-    isURL: {
-      errorMessage: "非法的URL地址",
-      options: { require_protocol: true }
-    }
   }
 });
 
@@ -65,12 +43,29 @@ exports.updateUserInfo = checkSchema({
       options: { min: 1, max: 10 }
     }
   },
-  user_pic: {
+  gender: {
     optional: {},
-    isURL: {
-      errorMessage: "非法的URL地址",
-      options: { require_protocol: true }
+    //自定义验证器
+    custom: {
+      //value即要验证的值，req是请求体，location是body，path是gender
+      options: (value, { req, location, path }) => {
+        if (value === "男" || value === "女") {
+          return true;
+        }
+        throw new Error("用户性别必须为男或者女");
+      }
     }
+  },
+  age: {
+    optional: {},
+    isInt: {
+      errorMessage: "用户年龄必须为1-200之间的整数",
+      options: {
+        min: 1,
+        max: 200
+      }
+    },
+    toInt: true
   }
 });
 

@@ -8,6 +8,7 @@ const myHandler = require(path.join(
   "..",
   "/router_handler/my_handler"
 ));
+
 //导入全局的CheckSchema
 const myCheckShema = require(path.join(__dirname, "..", "/store/check_shema"));
 

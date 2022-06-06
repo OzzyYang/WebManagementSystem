@@ -31,6 +31,7 @@ app.use(
 //全局的响应函数的中间件
 app.use((req, res, next) => {
   /**
+   * 全局的响应函数
    * @param {发送给前端的错误信息} msg
    * @param {输出在控制面板的日志信息} logInfo
    * @param {发送给前端的执行状态,0表示成功,1表示失败} status
