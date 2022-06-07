@@ -43,14 +43,19 @@ exports.addUser = (req, res) => {
 
     //插入新用户
     var sqlIns =
-      "insert into user_info (username) values(?);insert into user_psd (userid,password) values((select id from user_info where username=?),?);";
+      "insert into user_info (username) values(?);insert into user_psd (userid,password) values((select id from user_info where username=?),?);insert into user_avatar (userid) values((select id from user_info where username=?));";
     database.getConnection((err, connection) => {
       if (err) return res.cc(err, logInfo);
       connection.beginTransaction((err) => {
         if (err) return res.cc(err, logInfo);
         connection.query(
           sqlIns,
-          [userinfo.username, userinfo.username, userinfo.password],
+          [
+            userinfo.username,
+            userinfo.username,
+            userinfo.password,
+            userinfo.username
+          ],
           (err, results) => {
             if (err) {
               return connection.rollback(() => {

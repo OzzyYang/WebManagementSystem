@@ -8,8 +8,8 @@ const bcrypt = require("bcryptjs");
  * 获取用户除了密码之外的基本信息
  * 包括ID、用户名、手机号码、邮箱、昵称、性别、年龄、权限等级
  * 登陆状态、创建时间、最近登录时间、用户头像
- * @param {*} req 请求体
- * @param {*} res 响应体
+ * @param {请求体} req
+ * @param {响应体} res
  * @returns 执行信息
  */
 exports.getUserInfo = (req, res) => {
@@ -46,8 +46,8 @@ exports.getUserInfo = (req, res) => {
 /**
  * 更新用户信息
  * 包括手机号码、邮箱、昵称、性别、年龄
- * @param {*} req 请求体
- * @param {*} res 响应体
+ * @param {请求体} req
+ * @param {响应体} res
  * @returns 执行信息
  */
 exports.updateUserInfo = (req, res) => {
@@ -92,8 +92,8 @@ exports.updateUserInfo = (req, res) => {
 
 /**
  * 对用户的密码进行重置，前端应对用户的输入的新密码进行二次验证
- * @param {*} req 请求体
- * @param {*} res 响应体
+ * @param {请求体} req
+ * @param {响应体} res
  * @returns 执行信息
  */
 exports.resetPassWord = (req, res) => {
@@ -103,7 +103,7 @@ exports.resetPassWord = (req, res) => {
     return res.cc("用户鉴权失败", logInfo);
   }
 
-  //检查用户信息格式是否正确
+  //检查用户密码格式是否正确
   const checkErrors = validationResult(req);
   if (checkErrors.array().length > 0) {
     return res.cc(checkErrors.array(true)[0].msg, logInfo);
@@ -153,4 +153,57 @@ exports.resetPassWord = (req, res) => {
   });
 };
 
-exports.updateUserAvatar = () => {};
+/**
+ * 更新用户头像，头像编码应以Base6的格式传递
+ *
+ * @param {请求体} req
+ * @param {响应体} res
+ * @returns 执行信息
+ */
+exports.updateUserAvatar = (req, res) => {
+  const logInfo = `update user avatar [${req.auth.username}]`;
+
+  if (!req.auth) {
+    return res.cc("用户鉴权失败", logInfo);
+  }
+
+  const userInfo = req.auth;
+
+  //检查用户头像格式是否正确
+  const checkErrors = validationResult(req);
+  if (checkErrors.array().length > 0) {
+    return res.cc(checkErrors.array(true)[0].msg, logInfo);
+  }
+
+  //更新操作
+  const sqlIns = "update user_avatar set avatar=? where userid=?";
+  database.query(sqlIns, [req.body.file, userInfo.id], (err, results) => {
+    if (err) {
+      return res.cc(err, logInfo);
+    }
+    if (results.affectedRows === 0) {
+      return res.cc("更新用户头像失败，请重试", logInfo);
+    }
+    return res.cc("用户头像更新成功", logInfo, 1);
+  });
+};
+
+exports.userLogout = (req, res) => {
+  const logInfo = `update user avatar [${req.auth.username}]`;
+
+  if (!req.auth) {
+    return res.cc("用户鉴权失败", logInfo);
+  }
+
+  const userInfo = req.auth;
+  const sqlUpt = "update user_info set islogin=0 where id=?";
+  database.query(sqlUpt, userInfo.id, (err, results) => {
+    if (err) {
+      return res.cc(err, logInfo);
+    }
+    if (results.affectedRows === 0) {
+      return res.cc("用户退出登录失败，请重试", logInfo);
+    }
+    return res.cc("用户退出登录成功", logInfo, 1);
+  });
+};

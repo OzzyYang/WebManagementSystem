@@ -21,4 +21,14 @@ router.post("/update", myCheckShema.updateUserInfo, myHandler.updateUserInfo);
 //重置密码
 router.post("/reset", myCheckShema.CheckPassword, myHandler.resetPassWord);
 
+//更新用户头像
+router.post(
+  "/avatar/update",
+  myCheckShema.checkAvatar,
+  myHandler.updateUserAvatar
+);
+
+//退出登录
+router.get("/logout", myHandler.userLogout);
+
 module.exports = router;

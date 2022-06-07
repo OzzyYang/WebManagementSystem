@@ -23,6 +23,10 @@ exports.checkUserInfo = checkSchema({
       errorMessage: "密码不能少于6位或超过12位",
       options: { min: 6, max: 16 }
     }
+  },
+  avatar: {
+    optional: true,
+    isBase64: { errorMessage: "用户头像的格式应为Base64" }
   }
 });
 
@@ -30,13 +34,13 @@ exports.checkUserInfo = checkSchema({
 exports.updateUserInfo = checkSchema({
   email: {
     //可选的
-    optional: {},
+    optional: true,
     isEmail: {
       errorMessage: "邮箱格式错误"
     }
   },
   nickname: {
-    optional: {},
+    optional: true,
     isString: { errorMessage: "昵称必须为字符串格式" },
     isLength: {
       errorMessage: "用户名不得少于1位或者超过10位字符",
@@ -44,7 +48,7 @@ exports.updateUserInfo = checkSchema({
     }
   },
   gender: {
-    optional: {},
+    optional: true,
     //自定义验证器
     custom: {
       //value即要验证的值，req是请求体，location是body，path是gender
@@ -57,7 +61,7 @@ exports.updateUserInfo = checkSchema({
     }
   },
   age: {
-    optional: {},
+    optional: true,
     isInt: {
       errorMessage: "用户年龄必须为1-200之间的整数",
       options: {
@@ -78,7 +82,7 @@ exports.CheckPassword = checkSchema({
       errorMessage: "旧密码必须为字母或者数字，不能包含空格等其它特殊字符"
     },
     isLength: {
-      errorMessage: "旧密码不能少于6位或超过12位",
+      errorMessage: "旧密码不能少于6位或超过16位",
       options: { min: 6, max: 16 }
     }
   },
@@ -89,8 +93,17 @@ exports.CheckPassword = checkSchema({
       errorMessage: "新密码必须为字母或者数字，不能包含空格等其它特殊字符"
     },
     isLength: {
-      errorMessage: "新密码不能少于6位或超过12位",
+      errorMessage: "新密码不能少于6位或超过16位",
       options: { min: 6, max: 16 }
+    }
+  }
+});
+
+exports.checkAvatar = checkSchema({
+  file: {
+    isDataURI: {
+      errorMessage: "用户头像的格式应为DataURI",
+      options: { urlSafe: false }
     }
   }
 });
