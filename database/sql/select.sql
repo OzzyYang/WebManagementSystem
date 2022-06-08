@@ -5,4 +5,5 @@ SELECT
 FROM
     user_info AS i
         INNER JOIN
-    (user_avatar AS a, user_psd AS p) ON i.id = a.userid AND i.id = p.userid;
+    (user_avatar AS a, user_psd AS p) ON i.id = a.userid AND i.id = p.userid
+

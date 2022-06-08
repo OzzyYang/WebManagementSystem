@@ -1,3 +1,9 @@
+/*
+ * 用户模块
+ * 功能：注册用户，用户登陆
+ *
+ */
+
 const path = require("path");
 
 const express = require("express");

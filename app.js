@@ -43,7 +43,7 @@ app.use((req, res, next) => {
     console.log(
       dayjs().format("YYYY-MM-DD HH:mm:ss"),
       ":",
-      logInfo,
+      logInfo ? logInfo : "",
       status === 1 ? "success" : msg
     );
     res.send({
@@ -63,6 +63,10 @@ app.use("/user", userRouter);
 const myRouter = require(path.join(__dirname, "/router/my.js"));
 app.use("/my", myRouter);
 
+//导入用户管理模块
+const umRouter = require(path.join(__dirname, "/router/um"));
+app.use("/manage/user", umRouter);
+
 //捕获Token认证后的错误
 app.use((err, req, res, next) => {
   console.log(err.message);
@@ -77,6 +81,6 @@ app.use((err, req, res, next) => {
   //其它原因导致的错误
   return res.send({
     status: 0,
-    msg: "Token认证失败"
+    msg: err.message
   });
 });

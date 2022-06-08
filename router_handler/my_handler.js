@@ -14,8 +14,9 @@ const bcrypt = require("bcryptjs");
  */
 exports.getUserInfo = (req, res) => {
   if (!req.auth) {
-    return res.cc("用户鉴权失败", "用户鉴权失败，用户失效或者未知用户");
+    return res.cc("用户鉴权失败，用户失效或者未知用户");
   }
+
   const logInfo = `get userinfo [${req.auth.username}]`;
   const userInfo = req.auth;
 
@@ -51,12 +52,11 @@ exports.getUserInfo = (req, res) => {
  * @returns 执行信息
  */
 exports.updateUserInfo = (req, res) => {
-  const logInfo = `update userinfo [${req.auth.username}]`;
-
   if (!req.auth) {
-    return res.cc("用户鉴权失败", logInfo);
+    return res.cc("用户鉴权失败，用户失效或者未知用户");
   }
 
+  const logInfo = `update userinfo [${req.auth.username}]`;
   const newUserInfo = req.body;
 
   //检查用户信息格式是否正确
@@ -97,11 +97,11 @@ exports.updateUserInfo = (req, res) => {
  * @returns 执行信息
  */
 exports.resetPassWord = (req, res) => {
-  const logInfo = `reset user password [${req.auth.username}]`;
-
   if (!req.auth) {
-    return res.cc("用户鉴权失败", logInfo);
+    return res.cc("用户鉴权失败，用户失效或者未知用户");
   }
+
+  const logInfo = `reset user password [${req.auth.username}]`;
 
   //检查用户密码格式是否正确
   const checkErrors = validationResult(req);
@@ -161,12 +161,11 @@ exports.resetPassWord = (req, res) => {
  * @returns 执行信息
  */
 exports.updateUserAvatar = (req, res) => {
-  const logInfo = `update user avatar [${req.auth.username}]`;
-
   if (!req.auth) {
-    return res.cc("用户鉴权失败", logInfo);
+    return res.cc("用户鉴权失败，用户失效或者未知用户");
   }
 
+  const logInfo = `update user avatar [${req.auth.username}]`;
   const userInfo = req.auth;
 
   //检查用户头像格式是否正确
@@ -188,14 +187,20 @@ exports.updateUserAvatar = (req, res) => {
   });
 };
 
+/**
+ * 退出登录
+ * @param {请求体} req
+ * @param {响应体} res
+ * @returns
+ */
 exports.userLogout = (req, res) => {
-  const logInfo = `update user avatar [${req.auth.username}]`;
-
   if (!req.auth) {
-    return res.cc("用户鉴权失败", logInfo);
+    return res.cc("用户鉴权失败，用户失效或者未知用户");
   }
 
+  const logInfo = `user logout [${req.auth.username}]`;
   const userInfo = req.auth;
+
   const sqlUpt = "update user_info set islogin=0 where id=?";
   database.query(sqlUpt, userInfo.id, (err, results) => {
     if (err) {
