@@ -31,35 +31,132 @@ exports.getUserInfo = (req, res) => {
   });
 };
 
-exports.updateUserInfo = (req, res) => {
+exports.addUserByManager = (req, res) => {
   const adminUserInfo = req.auth; //管理员信息
   //被管理者用户信息
   var manaUserInfo = {};
   for (const key in req.body) {
-    console.log(key, req.body[key], typeof req.body[key]);
-    if (
-      Object.hasOwnProperty.call(req.body, key) &&
-      req.body[key] &&
-      key !== "avatar" &&
-      key !== "password"
-    ) {
+    //Object.hasOwnProperty.call()方法的作用与Object.hasOwnProperty(prop)相同，用于检测对象自身属性中是否具有指定的属性
+    //如果键对应的值为空或者null或者undefined，则将其值设为null，保证入库值的统一性
+    if (Object.hasOwnProperty.call(req.body, key) && req.body[key]) {
       manaUserInfo[key] = req.body[key];
     } else {
       manaUserInfo[key] = null;
     }
   }
 
-  const logInfo = `manage user by [${adminUserInfo.username}] - update userinfo [${manaUserInfo.id}]`;
+  const manaUserAvatar = manaUserInfo.avatar;
+  const manaUserPSD = manaUserInfo.password;
+  delete manaUserInfo.password;
+  delete manaUserInfo.avatar;
 
-  const sql = "update user_info set ? where id=?";
-  database.query(sql, [manaUserInfo, req.params.userid], (err, results) => {
+  const logInfo = `manage user by [${adminUserInfo.username}] - add user [${manaUserInfo.username}]`;
+
+  const sql =
+    "insert into user_info set ?;insert into user_avatar set userid=(select id from user_info where username=?),avatar=?;insert into user_psd set userid=(select id from user_info where username=?),password=?;";
+
+  database.getConnection((err, connection) => {
     if (err) {
       return res.cc(err, logInfo);
     }
-    if (results.affectedRows === 0) {
-      return res.cc("用户信息更新失败", logInfo);
+    connection.beginTransaction((err) => {
+      if (err) return res.cc(err, logInfo);
+      connection.query(
+        sql,
+        [
+          manaUserInfo,
+          manaUserInfo.username,
+          manaUserAvatar,
+          manaUserInfo.username,
+          manaUserPSD
+        ],
+        (err, results) => {
+          if (err) {
+            return connection.rollback(() => {
+              res.cc(err, logInfo);
+            });
+          }
+          if (results.affectedRows === 0) {
+            return connection.rollback(() => {
+              res.cc("添加用户失败", logInfo);
+            });
+          }
+          connection.commit((err) => {
+            if (err) {
+              return connection.rollback(() => {
+                res.cc(err, logInfo);
+              });
+            }
+            return res.cc("添加用户成功", logInfo, 1);
+          });
+        }
+      );
+    });
+  });
+};
+
+exports.updateUserInfo = (req, res) => {
+  const adminUserInfo = req.auth; //管理员信息
+  //被管理者用户信息
+  var manaUserInfo = { id: req.params.userid };
+  for (const key in req.body) {
+    //Object.hasOwnProperty.call()方法的作用与Object.hasOwnProperty(prop)相同，用于检测对象自身属性中是否具有指定的属性
+    //如果键对应的值为空或者null或者undefined，则将其值设为null，保证入库值的统一性
+    if (Object.hasOwnProperty.call(req.body, key) && req.body[key]) {
+      manaUserInfo[key] = req.body[key];
+    } else {
+      manaUserInfo[key] = null;
     }
-    return res.cc("用户信息更新成功", logInfo, 1);
+  }
+
+  const logInfo = `manage user by [${adminUserInfo.username}] - update userinfo [id:${manaUserInfo.id}]`;
+
+  const sql =
+    "update user_info set username=?,phone=?,email=?,nickname=?,age=?,gender=?,islogin=?,status=?,level=? where id=?;update user_avatar set avatar=? where userid=?; ";
+  database.getConnection((err, connection) => {
+    if (err) {
+      return res.cc(err, logInfo);
+    }
+    connection.beginTransaction((err) => {
+      if (err) return res.cc(err, logInfo);
+      connection.query(
+        sql,
+        [
+          manaUserInfo.username,
+          manaUserInfo.phone,
+          manaUserInfo.email,
+          manaUserInfo.nickname,
+          manaUserInfo.age,
+          manaUserInfo.gender,
+          manaUserInfo.islogin,
+          manaUserInfo.status,
+          manaUserInfo.level,
+          manaUserInfo.id,
+          manaUserInfo.avatar,
+          manaUserInfo.id
+        ],
+        (err, results) => {
+          if (err) {
+            return connection.rollback(() => {
+              res.cc(err, logInfo);
+            });
+          }
+          if (results.affectedRows === 0) {
+            return connection.rollback(() => {
+              res.cc("用户信息更新失败", logInfo);
+            });
+          }
+          connection.commit((err) => {
+            if (err) {
+              return connection.rollback(() => {
+                res.cc(err, logInfo);
+              });
+            }
+            return res.cc("用户信息更新成功", logInfo, 1);
+          });
+        }
+      );
+    });
   });
 };
 

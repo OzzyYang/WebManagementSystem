@@ -1,7 +1,7 @@
 /*
  * 用户管理模块
  * 此模块仅面向拥有管理员权限的用户开放
- * 功能：获取所有用户信息，对单独的用户进行更新信息、更改权限、删除用户等管理
+ * 功能：添加用户（包含权限信息），获取所有用户信息，更新用户信息、删除用户
  *
  */
 
@@ -41,11 +41,13 @@ router.use((req, res, next) => {
   });
 });
 
-//获取用户信息
+//获取所有用户信息
 router.get("/getAll", umHandler.getAllUserInfo);
+//更改单个用户信息
+router.post("/add", umHandler.addUserByManager);
 //获取单个用户信息
 router.get("/:userid/get", umHandler.getUserInfo);
-//管理单个用户信息
+//更改单个用户信息
 router.post("/:userid/update", umHandler.updateUserInfo);
 
 module.exports = router;
