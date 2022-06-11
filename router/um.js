@@ -49,5 +49,9 @@ router.post("/add", umHandler.addUserByManager);
 router.get("/:userid/get", umHandler.getUserInfo);
 //更改单个用户信息
 router.post("/:userid/update", umHandler.updateUserInfo);
+//更改单个用户
+router.get("/:userid/delete", umHandler.deleteUser);
+//更改单个用户
+router.post("/:userid/reset", umHandler.resetPSDByManager);
 
 module.exports = router;

@@ -1,13 +1,22 @@
 const path = require("path");
 
 const database = require(path.join(__dirname, "..", "/database/index"));
+//用于加密用户密码的中间件
+const bcrypt = require("bcryptjs");
 
+/**
+ * 获取所有用户信息
+ * TODO:分页
+ * @param {请求体} req
+ * @param {响应体} res
+ * @returns 执行信息
+ */
 exports.getAllUserInfo = (req, res) => {
-  const logInfo = `manage user by [${req.auth.username}] - get all userinfo`;
-  const userInfo = req.auth;
+  const adminUserInfo = req.auth; //管理员信息
+  const logInfo = `manage user by [${adminUserInfo.username}] - get all userinfo`;
 
   const sql =
-    "SELECT i.*, a.avatar, p.password, p.password_1, p.password_2 FROM user_info AS i INNER JOIN (user_avatar AS a, user_psd AS p) ON i.id = a.userid AND i.id = p.userid;";
+    "SELECT i.*, a.avatar FROM user_info AS i INNER JOIN user_avatar AS a ON i.id = a.userid where status <> 3;";
   database.query(sql, (err, results) => {
     if (err) {
       return res.cc(err);
@@ -16,13 +25,18 @@ exports.getAllUserInfo = (req, res) => {
   });
 };
 
+/**
+ * 获取单个用户的所有信息
+ * @param {请求体} req
+ * @param {响应体} res
+ */
 exports.getUserInfo = (req, res) => {
   const adminUserInfo = req.auth; //管理员信息
   const manaUserID = req.params.userid; //被管理者用户ID
   const logInfo = `manage user by [${adminUserInfo.username}] - get userinfo [${manaUserID}]`;
 
   const sql =
-    "SELECT i.*, a.avatar, p.password, p.password_1, p.password_2 FROM user_info AS i INNER JOIN (user_avatar AS a, user_psd AS p) ON i.id = a.userid AND i.id = p.userid WHERE id=?;";
+    "SELECT i.*, a.avatar FROM user_info AS i INNER JOIN user_avatar AS a ON i.id = a.userid WHERE id=?;";
   database.query(sql, manaUserID, (err, results) => {
     if (err) {
       return res.cc(err);
@@ -31,24 +45,28 @@ exports.getUserInfo = (req, res) => {
   });
 };
 
+/**
+ * 管理员添加用户，包含权限信息
+ * @param {请求体} req
+ * @param {响应体} res
+ */
 exports.addUserByManager = (req, res) => {
   const adminUserInfo = req.auth; //管理员信息
   //被管理者用户信息
   var manaUserInfo = {};
-  for (const key in req.body) {
-    //Object.hasOwnProperty.call()方法的作用与Object.hasOwnProperty(prop)相同，用于检测对象自身属性中是否具有指定的属性
-    //如果键对应的值为空或者null或者undefined，则将其值设为null，保证入库值的统一性
-    if (Object.hasOwnProperty.call(req.body, key) && req.body[key]) {
-      manaUserInfo[key] = req.body[key];
-    } else {
-      manaUserInfo[key] = null;
-    }
-  }
 
-  const manaUserAvatar = manaUserInfo.avatar;
-  const manaUserPSD = manaUserInfo.password;
-  delete manaUserInfo.password;
-  delete manaUserInfo.avatar;
+  manaUserInfo.username = req.body.username ? req.body.username : null;
+  manaUserInfo.phone = req.body.phone ? req.body.phone : null;
+  manaUserInfo.email = req.body.email ? req.body.email : null;
+  manaUserInfo.nickname = req.body.nickname ? req.body.nickname : null;
+  manaUserInfo.gender = req.body.gender ? req.body.gender : null;
+  manaUserInfo.age = req.body.age ? req.body.age : null;
+  manaUserInfo.status = req.body.status ? req.body.status : null;
+  manaUserInfo.level = req.body.level ? req.body.level : null;
+
+  const manaUserAvatar = req.body.avatar;
+  //调用bcrypt.hashSync()对密码进行加密
+  const manaUserPSD = bcrypt.hashSync(req.body.password, 10);
 
   const logInfo = `manage user by [${adminUserInfo.username}] - add user [${manaUserInfo.username}]`;
 
@@ -95,6 +113,11 @@ exports.addUserByManager = (req, res) => {
   });
 };
 
+/**
+ * 管理员更新用户信息，包含权限信息
+ * @param {请求体} req
+ * @param {响应体} res
+ */
 exports.updateUserInfo = (req, res) => {
   const adminUserInfo = req.auth; //管理员信息
   //被管理者用户信息
@@ -160,4 +183,56 @@ exports.updateUserInfo = (req, res) => {
   });
 };
 
-exports.deleteUser = (req, res) => {};
+exports.deleteUser = (req, res) => {
+  const adminUserInfo = req.auth; //管理员信息
+  //被管理者用户信息
+  var manaUserID = req.params.userid;
+
+  const logInfo = `manage user by [${adminUserInfo.username}] - delete user [id:${manaUserID}]`;
+
+  const sql = "update user_info set status=3 where id=?; ";
+  database.query(sql, manaUserID, (err, results) => {
+    if (err) {
+      return res.cc(err, logInfo);
+    }
+    if (results.affectedRows === 0) {
+      return res.cc("删除用户失败", logInfo);
+    }
+    return res.cc("删除用户成功", logInfo, 1);
+  });
+};
+
+exports.resetPSDByManager = (req, res) => {
+  const adminUserInfo = req.auth; //管理员信息
+  //被管理者用户信息
+  var manaUserID = req.params.userid;
+  //调用bcrypt.hashSync()对密码进行加密
+  const manaUserNewPSD = bcrypt.hashSync(req.body.newPassword, 10);
+
+  const logInfo = `manage user by [${adminUserInfo.username}] - reset user password [id:${manaUserID}]`;
+
+  const sqlSel = "select * from user_psd where userid=?; ";
+  database.query(sqlSel, manaUserID, (err, results) => {
+    if (err) {
+      return res.cc(err, logInfo);
+    }
+    if (results.length === 0) {
+      return res.cc("查找用户失败", logInfo);
+    }
+    const sqlUpt =
+      "update user_psd set password=?,password_1=?,password_2=? where userid=?; ";
+    database.query(
+      sqlUpt,
+      [manaUserNewPSD, results[0].password, results[0].password_1, manaUserID],
+      (err, results) => {
+        if (err) {
+          return res.cc(err, logInfo);
+        }
+        if (results.affectedRows === 0) {
+          return res.cc("用户密码重置失败", logInfo);
+        }
+        return res.cc("用户密码重置成功", logInfo, 1);
+      }
+    );
+  });
+};
