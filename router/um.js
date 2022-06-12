@@ -43,15 +43,15 @@ router.use((req, res, next) => {
 
 //获取所有用户信息
 router.get("/getAll", umHandler.getAllUserInfo);
-//更改单个用户信息
+//添加单个用户
 router.post("/add", umHandler.addUserByManager);
 //获取单个用户信息
 router.get("/:userid/get", umHandler.getUserInfo);
 //更改单个用户信息
 router.post("/:userid/update", umHandler.updateUserInfo);
-//更改单个用户
+//删除单个用户
 router.get("/:userid/delete", umHandler.deleteUser);
-//更改单个用户
+//重置单个用户的密码
 router.post("/:userid/reset", umHandler.resetPSDByManager);
 
 module.exports = router;

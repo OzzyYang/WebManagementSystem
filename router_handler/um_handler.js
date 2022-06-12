@@ -36,10 +36,13 @@ exports.getUserInfo = (req, res) => {
   const logInfo = `manage user by [${adminUserInfo.username}] - get userinfo [${manaUserID}]`;
 
   const sql =
-    "SELECT i.*, a.avatar FROM user_info AS i INNER JOIN user_avatar AS a ON i.id = a.userid WHERE id=?;";
+    "SELECT i.*, a.avatar FROM user_info AS i INNER JOIN user_avatar AS a ON i.id = a.userid WHERE id=? and status <> 3;";
   database.query(sql, manaUserID, (err, results) => {
     if (err) {
       return res.cc(err);
+    }
+    if (results.length === 0) {
+      return res.cc("未找到对应的用户", logInfo);
     }
     return res.cc("用户信息查询成功", logInfo, 1, results[0]);
   });

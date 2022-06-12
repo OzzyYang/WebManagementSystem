@@ -67,6 +67,14 @@ app.use("/my", myRouter);
 const umRouter = require(path.join(__dirname, "/router/um"));
 app.use("/manage/user", umRouter);
 
+//导入绘本管理模块
+const bmRouter = require(path.join(__dirname, "/router/bm"));
+app.use("/manage/book", bmRouter);
+
+//导入标签管理模块
+const tmRouter = require(path.join(__dirname, "/router/tm"));
+app.use("/manage/tag", tmRouter);
+
 //捕获Token认证后的错误
 app.use((err, req, res, next) => {
   console.log(err.message);

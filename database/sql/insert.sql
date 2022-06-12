@@ -34,3 +34,6 @@ values(
 COMMIT;
 
 ROLLBACK;
+
+insert  IGNORE into  book_tag_rel values(10,6); 
+insert into book_tag_rel values(10,6) as new on duplicate key update ;
