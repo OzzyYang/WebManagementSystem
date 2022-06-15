@@ -24,7 +24,7 @@ app.listen(config.port, () => {
 //配置解析Token的中间件
 app.use(
   expressJwt({ secret: config.jwtSecretKey, algorithms: ["HS256"] }).unless({
-    path: [/^\/user\//]
+    path: [/^\/user\//, /^\/book\//]
   })
 );
 
@@ -67,6 +67,10 @@ app.use("/my", myRouter);
 const umRouter = require(path.join(__dirname, "/router/um"));
 app.use("/manage/user", umRouter);
 
+//导入绘本模块
+const bookRouter = require(path.join(__dirname, "/router/book"));
+app.use("/book", bookRouter);
+
 //导入绘本管理模块
 const bmRouter = require(path.join(__dirname, "/router/bm"));
 app.use("/manage/book", bmRouter);
@@ -83,12 +87,12 @@ app.use((err, req, res, next) => {
     //TODO 无效的cc function
     return res.send({
       status: 0,
-      msg: "无效的Token"
+      message: "无效的Token"
     });
   }
   //其它原因导致的错误
   return res.send({
     status: 0,
-    msg: err.message
+    message: err.message
   });
 });

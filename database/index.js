@@ -10,10 +10,11 @@ const db = mysql.createPool({
   host: "127.0.0.1",
   user: "root",
   password: "oyzz7758258",
-  database: "wms_test",
+  database: "wms",
   multipleStatements: true
 });
 
+//检测是否为第一次运行
 db.query("select 1 from user_info;", (err, result) => {
   if (err && err.code === "ER_NO_SUCH_TABLE") {
     console.log(
